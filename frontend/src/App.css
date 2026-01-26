@@ -1,0 +1,44 @@
+@import './tailwind.css';
+
+.disabledBtn {
+  color: #fff !important;
+}
+
+/* Dark theme styles for Select dropdown */
+.aspect-ratio-select .ant-select-selector {
+  background-color: #2a2c42 !important;
+  border-color: #383a5c !important;
+  color: #8e8fb5 !important;
+  height: 44px !important;
+  padding: 6px 12px !important;
+}
+
+.aspect-ratio-select .ant-select-selector:hover {
+  border-color: #6366f1 !important;
+}
+
+.aspect-ratio-select .ant-select-selection-item {
+  line-height: 30px !important;
+  color: #fff !important;
+}
+
+.aspect-ratio-select .ant-select-arrow {
+  color: #8e8fb5 !important;
+}
+
+.dark-select-dropdown .ant-select-item {
+  color: #8e8fb5 !important;
+  background-color: #2a2c42 !important;
+  padding: 8px 12px !important;
+}
+
+.dark-select-dropdown .ant-select-item-option-active,
+.dark-select-dropdown .ant-select-item-option-selected {
+  background-color: #383a5c !important;
+  color: #fff !important;
+}
+
+.dark-select-dropdown .ant-select-dropdown {
+  background-color: #2a2c42 !important;
+  border: 1px solid #383a5c !important;
+}
