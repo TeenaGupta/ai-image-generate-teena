@@ -123,7 +123,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               style={{ height: 44 }}
             >
               {[
-                { value: 'sdxl', label: 'Stable Diffusion XL' },
+                { value: 'stable-diffusion', label: 'Stable Diffusion XL' },
                 { value: 'playground', label: 'Playground AI' },
                 // { value: 'playground', label: 'Playground AI v2.5 (High Quality)' }
               ].map((model) => (
