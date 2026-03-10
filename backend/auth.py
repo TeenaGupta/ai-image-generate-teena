@@ -10,6 +10,7 @@ from typing import Optional
 
 router = APIRouter()
 
+
 # JWT Configuration
 SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'your-secret-key')  # In production, use environment variable
 ALGORITHM = "HS256"
@@ -36,7 +37,7 @@ def get_db_connection():
             host=os.getenv('MYSQL_HOST', 'localhost'),
             user=os.getenv('MYSQL_USER', 'root'),
             password=os.getenv('MYSQL_PASSWORD', ''),
-            database=os.getenv('MYSQL_DATABASE', 'imagix_db')
+            database=os.getenv('MYSQL_DATABASE', 'ai_image')
         )
         if connection.is_connected():
             return connection

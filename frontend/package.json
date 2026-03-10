@@ -1,5 +1,5 @@
 {
-  "name": "imagix-ai-frontend",
+  "name": "ai-image-generate-frontend",
   "version": "0.1.0",
   "private": true,
   "dependencies": {

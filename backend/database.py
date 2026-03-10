@@ -14,7 +14,7 @@ DB_CONFIG = {
     'host': os.getenv('MYSQL_HOST', 'localhost'),
     'user': os.getenv('MYSQL_USER', 'root'),
     'password': os.getenv('MYSQL_PASSWORD', ''),
-    'database': os.getenv('MYSQL_DATABASE', 'imagix_db'),
+    'database': os.getenv('MYSQL_DATABASE', 'ai_image'),
     'pool_name': 'imagix_pool',
     'pool_size': 5,
     'pool_reset_session': True,

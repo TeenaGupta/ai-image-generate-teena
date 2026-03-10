@@ -9,7 +9,7 @@ An advanced AI-powered text-to-image generation application that supports multip
 
 ## Features
 
-- Generate images using multiple AI models (Flux, Imagen, Stable Diffusion, and more)
+- Generate images using multiple AI models ( Stable Diffusion, animagine)
 - Magic prompt enhancement using Hugging Face API
 - Save and manage generated images
 - User authentication and profile management
@@ -44,8 +44,8 @@ An advanced AI-powered text-to-image generation application that supports multip
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/imagix-ai.git
-   cd imagix-ai
+   git clone https://github.com/TeenaGupta/ai-image-generate-teena.git
+   cd ai-image-generate-teena
    ```
 
 2. Create a `.env` file in the backend directory with the following variables:
@@ -60,7 +60,7 @@ An advanced AI-powered text-to-image generation application that supports multip
    MYSQL_HOST=localhost
    MYSQL_USER=your_mysql_username
    MYSQL_PASSWORD=your_mysql_password
-   MYSQL_DATABASE=imagix_db
+   MYSQL_DATABASE=ai_image
    ```
 
 ### Installation

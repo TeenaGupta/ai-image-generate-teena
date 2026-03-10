@@ -26,7 +26,7 @@ def create_database():
             cursor = connection.cursor()
             
             # Get database name from environment or use default
-            db_name = os.getenv('MYSQL_DATABASE', 'imagix_db')
+            db_name = os.getenv('MYSQL_DATABASE', 'ai_image')
             
             # Create database if it doesn't exist
             cursor.execute(f"CREATE DATABASE IF NOT EXISTS {db_name} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")

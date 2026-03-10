@@ -123,20 +123,9 @@ const Sidebar: React.FC<SidebarProps> = ({
               style={{ height: 44 }}
             >
               {[
-                { value: 'flux', label: 'Black Forest Labs / Flux' },
-                { value: 'Flux Dev', label: 'Black Forest Labs / Flux Dev' },
-                { value: 'flux-pro', label: 'Black Forest Labs / Flux Pro' },
-                { value: 'imagen-fast', label: 'Google / Imagen-3-Fast' },
-                { value: 'imagen', label: 'Google / Imagen-3' },
-                { value: 'sdxl-lightning', label: 'ByteDance / SDXL Lightning' },
-                { value: 'stable-diffusion', label: 'Stability AI / Stable Diffusion' },
-                { value: 'animagine', label: 'Animagine XL 3.1' },
-                { value: 'recraft', label: 'Recraft AI v3' },
-                { value: 'recraft-svg', label: 'Recraft SVG' },
-                { value: 'kandinsky', label: 'Kandinsky 2.1' },
-                { value: 'sticker-maker', label: 'Sticker Maker' },
-                { value: 'sdxl-emoji', label: 'SDXL Emoji' },
-                { value: 'lcm', label: 'Latent Consistency Model' }
+                { value: 'sdxl', label: 'Stable Diffusion XL' },
+                { value: 'playground', label: 'Playground AI' },
+                // { value: 'playground', label: 'Playground AI v2.5 (High Quality)' }
               ].map((model) => (
                 <Option 
                   key={model.value} 

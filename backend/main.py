@@ -10,6 +10,8 @@ import zipfile
 import requests
 from huggingface_hub import InferenceClient
 from dotenv import load_dotenv
+from auth import router as auth_router
+
 
 # Load environment variables from .env file
 load_dotenv()
@@ -23,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 # Initialize FastAPI app
 app = FastAPI()
-
+app.include_router(auth_router, prefix="/auth", tags=["auth"])
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
@@ -48,13 +50,15 @@ class ImagePrompt(BaseModel):
     image_format: str = 'jpg'
     user_email: Optional[str] = None
     reference_image: Optional[str] = None
-    model_type: str = 'flux'
+    model_type: str = 'stable-diffusion'  # Default model type
 
 # Hugging Face configuration
 API_URL = "https://api-inference.huggingface.co/models/Gustavosta/MagicPrompt-Stable-Diffusion"
-hugging_face_api_key = os.getenv('HUGGING_FACE_API_KEY')
-headers = {"Authorization": f"Bearer {hugging_face_api_key}"}
-
+hugging_face_api_key = os.getenv("HUGGING_FACE_API_KEY")
+headers = {
+    "Authorization": f"Bearer {hugging_face_api_key}",
+    "Content-Type": "application/json"
+}
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     logger.error(f"Global exception handler caught: {str(exc)}", exc_info=True)
@@ -104,6 +108,7 @@ async def generate_image(image_prompt: ImagePrompt):
                     model_type=image_prompt.model_type,
                     aspect_ratio=image_prompt.aspect_ratio,
                     image_format=image_prompt.image_format,
+                    headers=headers,
                     reference_image=image_prompt.reference_image
                 )
                 

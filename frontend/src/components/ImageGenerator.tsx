@@ -31,7 +31,7 @@ const ImageGenerator: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [previousImages, setPreviousImages] = useState<ImageDetails[]>([]);
   const [imageFormat, setImageFormat] = useState('jpg');
-  const [modelType, setModelType] = useState('flux');
+  const [modelType, setModelType] = useState('stable-diffusion');
   const [referenceImage, setReferenceImage] = useState<string | null>(null);
 
   const { isGenerating, isEnhancing, isDownloading, isFetching } = loadingState;
