@@ -15,7 +15,6 @@ interface SelectedImages {
   [key: number]: boolean;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const ImageGenerator: React.FC = () => {
   const { isAuth, email } = useAuth();
@@ -48,6 +47,8 @@ const ImageGenerator: React.FC = () => {
       reader.readAsDataURL(file);
     }
   }, []);
+  
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   const handleRemoveReferenceImage = useCallback(() => {
     setReferenceImage(null);
@@ -389,30 +390,30 @@ const ImageGenerator: React.FC = () => {
               onReferenceImageUpload={handleReferenceImageUpload}
               onRemoveReferenceImage={handleRemoveReferenceImage}
             />
-          <MainContent
-            prompt={prompt}
-            setPrompt={setPrompt}
-            handleSubmit={handleSubmit}
-            handleClear={handleClear}
-            handleGenerateMagicPrompt={handleGenerateMagicPrompt}
-            handleDownload={handleDownload}
-            isLoading={isGenerating}
-            error={error}
-            generatedImage={generatedImage}
-            onDeleteGeneratedImage={handleDeleteGeneratedImage}
-            previousImages={previousImages}
-            onImageError={handleImageError}
-            onDeletePreviousImage={handleDeletePreviousImage}
-            imageFormat={imageFormat}
-            numImages={numImages}
-            isAuth={isAuth}
-            handleCopyPrompt={handleCopyPrompt}
-            selectedImages={selectedImages}
-            onSelectImage={handleSelectImage}
-            onSelectAll={handleSelectAll}
-            onBatchDownload={handleBatchDownload}
-            onBatchDelete={handleBatchDelete}
-            modelType={modelType}
+            <MainContent
+              prompt={prompt}
+              setPrompt={setPrompt}
+              handleSubmit={handleSubmit}
+              handleClear={handleClear}
+              handleGenerateMagicPrompt={handleGenerateMagicPrompt}
+              handleDownload={handleDownload}
+              isLoading={isGenerating}
+              error={error}
+              generatedImage={generatedImage}
+              onDeleteGeneratedImage={handleDeleteGeneratedImage}
+              previousImages={previousImages}
+              onImageError={handleImageError}
+              onDeletePreviousImage={handleDeletePreviousImage}
+              imageFormat={imageFormat}
+              numImages={numImages}
+              isAuth={isAuth}
+              handleCopyPrompt={handleCopyPrompt}
+              selectedImages={selectedImages}
+              onSelectImage={handleSelectImage}
+              onSelectAll={handleSelectAll}
+              onBatchDownload={handleBatchDownload}
+              onBatchDelete={handleBatchDelete}
+              modelType={modelType}
             />
           </>
         )}
