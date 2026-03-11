@@ -26,6 +26,8 @@ interface SelectedImages {
 
 const { Content } = Layout;
 
+const API_URL = process.env.REACT_APP_API_URL ;
+
 const CustomCheckbox = React.memo<{
   checked: boolean;
   onChange: () => void;
@@ -79,7 +81,7 @@ const Profile: React.FC = () => {
         headers['X-User-Email'] = email;
       }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/images/details`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL }/images/details`, {
         headers
       });
       const data = await response.json();
@@ -96,7 +98,7 @@ const Profile: React.FC = () => {
       setIsLoading(false);
     }
   };
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  
   useEffect(() => {
     if (!isAuth) {
       navigate('/login');
