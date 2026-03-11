@@ -15,15 +15,18 @@ interface AuthResponse {
   username: string;
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+
 export const login = async (data: LoginData): Promise<AuthResponse> => {
-  const response = await fetch('http://localhost:8000/auth/login', {
+  const response = await fetch(`${API_URL}/auth/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(data),
   });
-
+  
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.detail || 'Login failed');
@@ -35,7 +38,7 @@ export const login = async (data: LoginData): Promise<AuthResponse> => {
 };
 
 export const register = async (data: RegisterData): Promise<AuthResponse> => {
-  const response = await fetch('http://localhost:8000/auth/register', {
+  const response = await fetch(`${API_URL}/auth/register`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

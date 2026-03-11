@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Layout, Button, message } from 'antd';
-import { 
-  DownloadOutlined, 
-  ArrowLeftOutlined, 
+import {
+  DownloadOutlined,
+  ArrowLeftOutlined,
   CheckOutlined,
   EyeOutlined,
   CopyOutlined,
@@ -74,18 +74,18 @@ const Profile: React.FC = () => {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       };
-      
+
       if (email) {
         headers['X-User-Email'] = email;
       }
 
-      const response = await fetch('http://localhost:8000/images/details', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/images/details`, {
         headers
       });
       const data = await response.json();
       if (data.images) {
         // Filter images for current user
-        const userImages = data.images.filter((img: ImageDetails) => 
+        const userImages = data.images.filter((img: ImageDetails) =>
           img.user_email === email
         );
         setImages(userImages);
@@ -96,7 +96,7 @@ const Profile: React.FC = () => {
       setIsLoading(false);
     }
   };
-
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
   useEffect(() => {
     if (!isAuth) {
       navigate('/login');
@@ -146,7 +146,7 @@ const Profile: React.FC = () => {
         headers['X-User-Email'] = email;
       }
 
-      const response = await fetch('http://localhost:8000/images/batch-download', {
+      const response = await fetch(`${API_URL}/images/batch-download`, {
         method: 'POST',
         headers,
         body: JSON.stringify(selectedIds)
@@ -189,7 +189,7 @@ const Profile: React.FC = () => {
       }
 
       for (const id of selectedIds) {
-        const response = await fetch(`http://localhost:8000/images/${id}`, {
+        const response = await fetch(`${API_URL}/images/${id}`, {
           method: 'DELETE',
           headers
         });
@@ -272,7 +272,7 @@ const Profile: React.FC = () => {
         headers['X-User-Email'] = email;
       }
 
-      const response = await fetch(`http://localhost:8000/images/${imageId}`, {
+      const response = await fetch(`${API_URL}/images/${imageId}`, {
         method: 'DELETE',
         headers
       });
@@ -299,15 +299,15 @@ const Profile: React.FC = () => {
           <div className="w-16 h-16 border-4 border-[#383a5c] border-b-[#6366f1] rounded-full animate-spin absolute top-0 left-0" style={{ animationDirection: 'reverse', animationDuration: '1s' }}></div>
         </div>
         <h2 className="text-white font-medium mt-6 text-lg">
-          {loadingState.isDownloading 
-            ? 'Preparing download...' 
+          {loadingState.isDownloading
+            ? 'Preparing download...'
             : loadingState.isDeleting
               ? 'Deleting image...'
               : 'Loading your gallery...'}
         </h2>
         <p className="text-[#8e8fb5] mt-2">
-          {loadingState.isDownloading 
-            ? 'Creating zip file of selected images' 
+          {loadingState.isDownloading
+            ? 'Creating zip file of selected images'
             : loadingState.isDeleting
               ? 'Removing selected image'
               : 'Please wait while we fetch your images'}
@@ -322,8 +322,8 @@ const Profile: React.FC = () => {
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center">
-              <ArrowLeftOutlined 
-                onClick={() => navigate('/')} 
+              <ArrowLeftOutlined
+                onClick={() => navigate('/')}
                 className="mr-6 text-[#8e8fb5] hover:text-white cursor-pointer text-xl transition-colors"
               />
               <div>

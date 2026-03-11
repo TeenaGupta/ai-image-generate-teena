@@ -47,7 +47,7 @@ const ImageGenerator: React.FC = () => {
       reader.readAsDataURL(file);
     }
   }, []);
-  
+
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   const handleRemoveReferenceImage = useCallback(() => {
@@ -92,7 +92,7 @@ const ImageGenerator: React.FC = () => {
         headers['X-User-Email'] = email;
       }
 
-      const response = await fetch('http://localhost:8000/images/batch-download', {
+      const response = await fetch(`${API_URL}/images/batch-download`, {
         method: 'POST',
         headers,
         body: JSON.stringify(selectedIds)
@@ -134,7 +134,7 @@ const ImageGenerator: React.FC = () => {
       }
 
       for (const id of selectedIds) {
-        const response = await fetch(`http://localhost:8000/images/${id}`, {
+        const response = await fetch(`${API_URL}/images/${id}`, {
           method: 'DELETE',
           headers
         });
@@ -164,7 +164,7 @@ const ImageGenerator: React.FC = () => {
         headers['X-User-Email'] = email;
       }
 
-      const response = await fetch(`http://localhost:8000/images/${imageToDelete.id}`, {
+      const response = await fetch(`${API_URL}/images/${imageToDelete.id}`, {
         method: 'DELETE',
         headers
       });
@@ -190,7 +190,7 @@ const ImageGenerator: React.FC = () => {
       if (isAuth && email) {
         headers['X-User-Email'] = email;
       }
-      const response = await fetch('http://localhost:8000/images/details', { headers });
+      const response = await fetch(`${API_URL}/images/details`, { headers });
       const data = await response.json();
       if (data.images) {
         setPreviousImages(data.images);
@@ -284,7 +284,7 @@ const ImageGenerator: React.FC = () => {
     setError(null);
 
     try {
-      const response = await fetch('http://localhost:8000/magic-prompt', {
+      const response = await fetch(`${API_URL}/magic-prompt`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
