@@ -25,11 +25,18 @@ logger = logging.getLogger(__name__)
 
 # Initialize FastAPI app
 app = FastAPI()
+
+origins = [
+    "http://localhost:3000",
+    "https://ai-image-generate-teenagupta.vercel.app",
+]
+
+
 app.include_router(auth_router, prefix="/auth", tags=["auth"])
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://ai-image-generate-teenagupta.vercel.app"],
+    allow_origins=origins,
     allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
