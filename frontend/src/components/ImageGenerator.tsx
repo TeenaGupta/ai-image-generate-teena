@@ -15,6 +15,8 @@ interface SelectedImages {
   [key: number]: boolean;
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 const ImageGenerator: React.FC = () => {
   const { isAuth, email } = useAuth();
   const [aspectRatio, setAspectRatio] = useState('1:1');
@@ -227,7 +229,7 @@ const ImageGenerator: React.FC = () => {
     setError(null);
 
     try {
-      const response = await fetch('http://localhost:8000/generate-image', {
+      const response = await fetch(`${API_URL}/generate-image`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
