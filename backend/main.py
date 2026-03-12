@@ -32,15 +32,17 @@ app = FastAPI()
 # ]
 
 
-app.include_router(auth_router, prefix="/auth", tags=["auth"])
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],   # or ["*"] for testing
-    allow_credentials=True,
+    allow_origins=["https://ai-image-generate-teenagupta.vercel.app"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(auth_router, prefix="/auth", tags=["auth"])
+
 
 # Initialize database
 db.init_database()
