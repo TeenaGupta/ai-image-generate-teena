@@ -5,7 +5,7 @@ An advanced AI-powered text-to-image generation application that supports multip
 ## Project Structure
 
 - `frontend/`: React TypeScript frontend application with Tailwind CSS
-- `backend/`: FastAPI Python backend application
+- `api/`: FastAPI Python backend application
 
 ## Features
 
@@ -23,9 +23,7 @@ An advanced AI-powered text-to-image generation application that supports multip
 - **Frontend**: React, TypeScript, Tailwind CSS
 - **Backend**: FastAPI, Python
 - **Database**: MySQL
-- **AI Models**: 
-  - Replicate API (multiple models)
-  - Hugging Face API
+- **AI Models**: Hugging Face API
 - **Image Storage**: Cloudinary
 - **Authentication**: JWT
 
