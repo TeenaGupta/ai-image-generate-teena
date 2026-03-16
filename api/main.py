@@ -89,7 +89,7 @@ async def get_api_token() -> Dict[str, str]:
         logger.error(f"Error getting API token: {str(e)}")
         raise HTTPException(status_code=500, detail="Error getting API token")
 
-@app.post("/magic-prompt")
+@app.post("/api/magic-prompt")
 async def generate_magic_prompt(request: PromptRequest):
     try:
         response = requests.post(API_URL, headers=headers, json={"inputs": request.prompt})
@@ -104,7 +104,7 @@ async def generate_magic_prompt(request: PromptRequest):
         logger.error(f"Hugging Face API call failed: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
-@app.post("/generate-image")
+@app.post("/api/generate-image")
 async def generate_image(image_prompt: ImagePrompt):
     try:
         new_images = []
@@ -154,7 +154,7 @@ async def delete_image(image_id: int, request: Request):
         logger.error(f"Error deleting image: {str(e)}")
         raise HTTPException(status_code=500, detail="Error deleting image")
 
-@app.post("/images/batch-download")
+@app.post("/api/images/batch-download")
 async def batch_download_images(image_ids: List[int]):
     connection = None
     cursor = None
