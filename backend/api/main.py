@@ -10,13 +10,13 @@ import zipfile
 import requests
 from huggingface_hub import InferenceClient
 from dotenv import load_dotenv
-from auth import router as auth_router
+from backend.api.auth import router as auth_router
 
 # Load environment variables from .env file
 load_dotenv()
 
 from database import db
-from models import image_generator
+from backend.api.models import image_generator
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -40,12 +40,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.options("/{path:path}")
-async def options_handler(path: str):
-    return {"status": "ok"}
-
 app.include_router(auth_router, prefix="/auth", tags=["auth"])
 
+
+@app.options("/{path:path}")
+async def options_handler(path: str):
+    return {"message": "ok"}
 
 # Initialize database
 db.init_database()

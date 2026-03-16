@@ -1,4 +1,4 @@
-from models import image_generator
+from backend.api.models import image_generator
 import os
 
 # Set the environment variable
