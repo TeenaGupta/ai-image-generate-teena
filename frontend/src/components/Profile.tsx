@@ -26,7 +26,7 @@ interface SelectedImages {
 
 const { Content } = Layout;
 
-const API_URL = process.env.REACT_APP_API_URL ;
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 const CustomCheckbox = React.memo<{
   checked: boolean;
@@ -81,7 +81,7 @@ const Profile: React.FC = () => {
         headers['X-User-Email'] = email;
       }
 
-      const response = await fetch(`${process.env.REACT_APP_API_URL }/images/details`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:8000" }/images/details`, {
         headers
       });
       const data = await response.json();

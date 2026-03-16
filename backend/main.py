@@ -12,7 +12,6 @@ from huggingface_hub import InferenceClient
 from dotenv import load_dotenv
 from auth import router as auth_router
 
-
 # Load environment variables from .env file
 load_dotenv()
 
@@ -26,20 +25,24 @@ logger = logging.getLogger(__name__)
 # Initialize FastAPI app
 app = FastAPI()
 
-# origins = [
-#     "https://ai-image-generate-teenagupta.vercel.app",
-#     "http://localhost:3000"
-# ]
+origins = [
+    "https://ai-image-generate-teenagupta.vercel.app",
+    "http://localhost:3000"
+]
 
 
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://ai-image-generate-teenagupta.vercel.app"],
+    allow_origins=origins,
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.options("/{path:path}")
+async def options_handler(path: str):
+    return {"status": "ok"}
 
 app.include_router(auth_router, prefix="/auth", tags=["auth"])
 
@@ -221,5 +224,8 @@ async def display_image():
 
 if __name__ == "__main__":
     import uvicorn
-    logger.info("Starting the server...")
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    import os
+
+    port = int(os.environ.get("PORT", 8000))
+
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
