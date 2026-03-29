@@ -15,7 +15,7 @@ interface AuthResponse {
   username: string;
 }
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
+const API_URL = process.env.REACT_APP_API_URL || "https://ai-image-backend.onrender.com";
 
 
 export const login = async (data: LoginData): Promise<AuthResponse> => {

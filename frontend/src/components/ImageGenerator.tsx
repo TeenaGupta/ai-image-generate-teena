@@ -22,7 +22,7 @@ const defaultApiUrl = (() => {
   }
   // When using vercel dev, frontend and backend share the same URL space.
   // Default to /api for all local use cases here.
-  return 'http://localhost:8000';
+  return 'https://ai-image-backend.onrender.com';
 })();
 
 const API_URL = defaultApiUrl;
