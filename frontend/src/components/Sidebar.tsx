@@ -53,16 +53,24 @@ const Sidebar: React.FC<SidebarProps> = ({
               value={aspectRatio}
               onChange={setAspectRatio}
               className="w-full aspect-ratio-select"
-              popupClassName="dark-select-dropdown"
-              dropdownStyle={{ 
-                backgroundColor: '#2a2c42',
-                borderColor: '#383a5c'
+              classNames={{
+                popup: {
+                  root: 'dark-select-dropdown',
+                },
+              }}
+              styles={{
+                popup: {
+                  root: {
+                    backgroundColor: '#2a2c42',
+                    borderColor: '#383a5c',
+                  },
+                },
               }}
               style={{ height: 44 }}
             >
               {aspectRatios.map((ratio) => (
-                <Option 
-                  key={ratio.value} 
+                <Option
+                  key={ratio.value}
                   value={ratio.value}
                   className="text-[#8e8fb5] hover:text-white hover:bg-[#383a5c]"
                 >
@@ -80,8 +88,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                   key={num}
                   onClick={() => setNumImages(num)}
                   className={`h-11 flex items-center justify-center ${numImages === num
-                      ? 'bg-[#6366f1] text-white border-[#6366f1] hover:bg-[#4f46e5]'
-                      : 'bg-[#2a2c42] border-[#383a5c] text-[#8e8fb5] hover:text-white hover:border-[#6366f1]'
+                    ? 'bg-[#6366f1] text-white border-[#6366f1] hover:bg-[#4f46e5]'
+                    : 'bg-[#2a2c42] border-[#383a5c] text-[#8e8fb5] hover:text-white hover:border-[#6366f1]'
                     }`}
                 >
                   {num}
@@ -97,11 +105,10 @@ const Sidebar: React.FC<SidebarProps> = ({
                 <Button
                   key={format}
                   onClick={() => setImageFormat(format)}
-                  className={`h-11 flex items-center justify-center uppercase ${
-                    imageFormat === format
-                      ? 'bg-[#6366f1] text-white border-[#6366f1] hover:bg-[#4f46e5]'
-                      : 'bg-[#2a2c42] border-[#383a5c] text-[#8e8fb5] hover:text-white hover:border-[#6366f1]'
-                  }`}
+                  className={`h-11 flex items-center justify-center uppercase ${imageFormat === format
+                    ? 'bg-[#6366f1] text-white border-[#6366f1] hover:bg-[#4f46e5]'
+                    : 'bg-[#2a2c42] border-[#383a5c] text-[#8e8fb5] hover:text-white hover:border-[#6366f1]'
+                    }`}
                 >
                   {format}
                 </Button>
@@ -115,10 +122,18 @@ const Sidebar: React.FC<SidebarProps> = ({
               value={modelType}
               onChange={setModelType}
               className="w-full aspect-ratio-select"
-              popupClassName="dark-select-dropdown"
-              dropdownStyle={{ 
-                backgroundColor: '#2a2c42',
-                borderColor: '#383a5c'
+              classNames={{
+                popup: {
+                  root: 'dark-select-dropdown',
+                },
+              }}
+              styles={{
+                popup: {
+                  root: {
+                    backgroundColor: '#2a2c42',
+                    borderColor: '#383a5c',
+                  },
+                },
               }}
               style={{ height: 44 }}
             >
@@ -127,8 +142,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                 { value: 'playground', label: 'Playground AI' },
                 // { value: 'playground', label: 'Playground AI v2.5 (High Quality)' }
               ].map((model) => (
-                <Option 
-                  key={model.value} 
+                <Option
+                  key={model.value}
                   value={model.value}
                   className="text-[#8e8fb5] hover:text-white hover:bg-[#383a5c]"
                 >
@@ -158,7 +173,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   <div className="absolute inset-0 bg-[#1a1b2e]/60 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
                     <Button
                       onClick={onRemoveReferenceImage}
-                      icon={<DeleteOutlined/>}
+                      icon={<DeleteOutlined />}
                       className=" flex items-center justify-center bg-[#ef4444]/80 hover:bg-[#ef4444] text-white border-none rounded-full transform hover:scale-110 transition-all shadow-lg"
                     />
                   </div>

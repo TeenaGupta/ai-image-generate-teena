@@ -1,74 +1,68 @@
+from dotenv import load_dotenv
+
 import os
-import logging
-from typing import Optional, Dict, List
+from mysql.connector.pooling import MySQLConnectionPool
 from mysql.connector import Error
 import mysql.connector
-from mysql.connector.pooling import MySQLConnectionPool
+import logging
+from typing import Optional, Dict, List
+
 from fastapi import HTTPException
 
 # Configure logging
 logger = logging.getLogger(__name__)
 
-# Database configuration
+load_dotenv()
+
+# Database configuration pulling from Vercel Environment Variables
 DB_CONFIG = {
-    'host': os.getenv('MYSQL_HOST', 'localhost'),
-    'user': os.getenv('MYSQL_USER', 'root'),
+    'host': os.getenv('MYSQL_HOST'),
+    'user': os.getenv('MYSQL_USER'),
     'password': os.getenv('MYSQL_PASSWORD', ''),
-    'database': os.getenv('MYSQL_DATABASE', 'ai_image'),
-    'pool_name': 'imagix_pool',
-    'pool_size': 5,
-    'pool_reset_session': True,
-    'autocommit': True,
-    'use_pure': True
+    'database': os.getenv('MYSQL_DATABASE'),
 }
+print("DB DEBUG →", DB_CONFIG['host'], DB_CONFIG['user'], DB_CONFIG['password'], DB_CONFIG['database'])
+if not DB_CONFIG['host'] or not DB_CONFIG['user'] or not DB_CONFIG['database']:
+    # raise Exception("Database not configured in environment variables")
+    pass
+
 
 class Database:
-    _instance = None
-    _pool = None
+    _instance = None    
 
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(Database, cls).__new__(cls)
             try:
-                cls._pool = MySQLConnectionPool(**DB_CONFIG)
-                logger.info("Database connection pool created successfully")
+                # Only initialize pool if environment variables are present
+                if DB_CONFIG['host']:
+                    cls._pool = MySQLConnectionPool(**DB_CONFIG)
+                    logger.info("Database connection pool created successfully")
+                else:
+                    logger.warning("MYSQL_HOST not set. Database features will be unavailable.")
             except Error as e:
                 logger.error(f"Error creating connection pool: {e}")
-                raise HTTPException(status_code=500, detail="Database connection error")
+                # Don't raise HTTPException here; let it fail at the call site
         return cls._instance
 
     def get_connection(self):
-        try:
-            connection = self._pool.get_connection()
-            logger.info("Successfully obtained database connection from pool")
-            return connection
-        except Error as e:
-            logger.error(f"Error getting connection from pool: {e}")
-            # Log more detailed information about the database configuration
-            logger.error(f"Database config: host={DB_CONFIG['host']}, user={DB_CONFIG['user']}, database={DB_CONFIG['database']}")
-            raise HTTPException(status_code=500, detail=f"Database connection error: {str(e)}")
-
+        if hasattr(self, "_pool"):
+            return self._pool.get_connection()
+        else:
+            raise Exception("Database not initialized")
+        
     def init_database(self):
-        """Initialize database tables if they don't exist"""
+        """
+        In Serverless, only call this manually or check for table existence once.
+        Avoid dropping tables in production.
+        """
         connection = None
+        cursor = None
         try:
             connection = self.get_connection()
             cursor = connection.cursor()
             
-            # Check if model_type column exists
-            cursor.execute("""
-                SELECT COUNT(*)
-                FROM information_schema.columns 
-                WHERE table_name = 'images'
-                AND column_name = 'model_type'
-            """)
-            model_type_exists = cursor.fetchone()[0] > 0
-
-            if not model_type_exists:
-                # Drop existing images table if model_type column doesn't exist
-                cursor.execute("DROP TABLE IF EXISTS images")
-            
-            # Create images table with model_type
+            # Simplified Table Creation (No dropping tables automatically)
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS images (
                     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -81,7 +75,6 @@ class Database:
                 )
             """)
             
-            # Create predictions table
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS predictions (
                     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -91,115 +84,94 @@ class Database:
             """)
             
             connection.commit()
-            logger.info("Database tables initialized successfully")
+            logger.info("Database tables verified/initialized")
         except Error as e:
             logger.error(f"Error initializing database: {e}")
-            raise HTTPException(status_code=500, detail="Database initialization error")
         finally:
-            if connection:
+            if cursor:
                 cursor.close()
+            if connection:
                 connection.close()
 
-    def store_image(self, url: str, prompt: str, user_email: Optional[str], model_type: str) -> None:
-        """Store image details in database"""
+    def store_image(self, url: str, prompt: str, user_email: Optional[str] = None, model_type: Optional[str] = None):
         connection = None
+        cursor = None
         try:
             connection = self.get_connection()
             cursor = connection.cursor()
-            
             cursor.execute(
                 "INSERT INTO images (url, prompt, user_email, model_type) VALUES (%s, %s, %s, %s)",
                 (url, prompt, user_email, model_type)
             )
-            
-            cursor.execute(
-                "INSERT INTO predictions (prompt) VALUES (%s)",
-                (prompt,)
-            )
-            
             connection.commit()
-            logger.info("Successfully stored image and prediction in database")
+            return cursor.lastrowid
         except Error as e:
-            logger.error(f"Database error while storing image: {e}")
-            raise HTTPException(status_code=500, detail="Database error")
+            logger.error(f"Error storing image: {e}")
+            raise HTTPException(status_code=500, detail="Error storing image")
         finally:
-            if connection:
+            if cursor:
                 cursor.close()
+            if connection:
                 connection.close()
 
-    def get_images(self, user_email: Optional[str] = None) -> List[Dict]:
-        """Get images from database"""
+    def get_images(self, user_email: Optional[str] = None):
         connection = None
+        cursor = None
         try:
             connection = self.get_connection()
             cursor = connection.cursor(dictionary=True)
-            
             if user_email:
-                cursor.execute(
-                    "SELECT id, url, prompt, created_at, user_email, model_type FROM images WHERE user_email = %s ORDER BY created_at DESC",
-                    (user_email,)
-                )
+                cursor.execute("SELECT * FROM images WHERE user_email = %s ORDER BY created_at DESC", (user_email,))
             else:
-                cursor.execute(
-                    "SELECT id, url, prompt, created_at, model_type FROM images ORDER BY created_at DESC"
-                )
-                
-            results = cursor.fetchall()
-            logger.debug(f"Retrieved {len(results)} images with details from database")
-            return results
+                cursor.execute("SELECT * FROM images ORDER BY created_at DESC")
+            return cursor.fetchall()
         except Error as e:
-            logger.error(f"Database error while fetching images: {e}")
-            raise HTTPException(status_code=500, detail="Database error")
+            logger.error(f"Error fetching images: {e}")
+            raise HTTPException(status_code=500, detail="Error fetching images")
         finally:
-            if connection:
+            if cursor:
                 cursor.close()
+            if connection:
                 connection.close()
 
-    def delete_image(self, image_id: int, user_email: Optional[str] = None) -> None:
-        """Delete image from database"""
+    def delete_image(self, image_id: int, user_email: Optional[str] = None):
         connection = None
+        cursor = None
         try:
             connection = self.get_connection()
             cursor = connection.cursor()
-            
             if user_email:
-                cursor.execute(
-                    "DELETE FROM images WHERE id = %s AND user_email = %s",
-                    (image_id, user_email)
-                )
+                cursor.execute("DELETE FROM images WHERE id = %s AND user_email = %s", (image_id, user_email))
             else:
-                cursor.execute(
-                    "DELETE FROM images WHERE id = %s AND user_email IS NULL",
-                    (image_id,)
-                )
-            
+                cursor.execute("DELETE FROM images WHERE id = %s", (image_id,))
             connection.commit()
+            if cursor.rowcount == 0:
+                raise HTTPException(status_code=404, detail="Image not found")
+            return True
         except Error as e:
-            logger.error(f"Database error while deleting image: {e}")
-            raise HTTPException(status_code=500, detail="Database error")
+            logger.error(f"Error deleting image: {e}")
+            raise HTTPException(status_code=500, detail="Error deleting image")
         finally:
-            if connection:
+            if cursor:
                 cursor.close()
+            if connection:
                 connection.close()
 
-    def get_recent_predictions(self, limit: int = 5) -> List[str]:
-        """Get recent predictions from database"""
+    def get_recent_predictions(self, limit: int = 10):
         connection = None
+        cursor = None
         try:
             connection = self.get_connection()
             cursor = connection.cursor(dictionary=True)
-            cursor.execute(
-                "SELECT prompt FROM predictions ORDER BY created_at DESC LIMIT %s",
-                (limit,)
-            )
-            results = cursor.fetchall()
-            return [row['prompt'] for row in results]
+            cursor.execute("SELECT * FROM predictions ORDER BY created_at DESC LIMIT %s", (limit,))
+            return cursor.fetchall()
         except Error as e:
-            logger.error(f"Database error while fetching predictions: {e}")
-            raise HTTPException(status_code=500, detail="Database error")
+            logger.error(f"Error fetching predictions: {e}")
+            raise HTTPException(status_code=500, detail="Error fetching predictions")
         finally:
-            if connection:
+            if cursor:
                 cursor.close()
+            if connection:
                 connection.close()
 
 # Create a singleton instance

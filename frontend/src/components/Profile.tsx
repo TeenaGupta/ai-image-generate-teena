@@ -27,7 +27,7 @@ interface SelectedImages {
 const { Content } = Layout;
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
-
+  
 const CustomCheckbox = React.memo<{
   checked: boolean;
   onChange: () => void;
@@ -70,7 +70,7 @@ const Profile: React.FC = () => {
     isLoading: true
   });
 
-  const fetchImages = async () => {
+  const fetchImages = useCallback(async () => {
     try {
       const headers: HeadersInit = {
         'Content-Type': 'application/json',
@@ -81,9 +81,21 @@ const Profile: React.FC = () => {
         headers['X-User-Email'] = email;
       }
 
-      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:8000" }/images/details`, {
+      const response = await fetch(`${API_URL}/api/images/details`, {
         headers
       });
+
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`Failed to fetch images: ${response.status} ${text}`);
+      }
+
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        const text = await response.text();
+        throw new Error(`Unexpected non-JSON response: ${contentType} ${text}`);
+      }
+
       const data = await response.json();
       if (data.images) {
         // Filter images for current user
@@ -97,7 +109,7 @@ const Profile: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [email]);
   
   useEffect(() => {
     if (!isAuth) {
@@ -105,7 +117,7 @@ const Profile: React.FC = () => {
       return;
     }
     fetchImages();
-  }, [isAuth, navigate, email]);
+  }, [isAuth, navigate, email, fetchImages]);
 
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
@@ -116,7 +128,7 @@ const Profile: React.FC = () => {
 
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
+  }, [fetchImages]);
 
   const handleSelectImage = useCallback((imageId: number) => {
     setSelectedImages(prev => ({
@@ -148,7 +160,7 @@ const Profile: React.FC = () => {
         headers['X-User-Email'] = email;
       }
 
-      const response = await fetch(`${API_URL}/images/batch-download`, {
+      const response = await fetch(`${API_URL}/api/images/batch-download`, {
         method: 'POST',
         headers,
         body: JSON.stringify(selectedIds)
@@ -191,7 +203,7 @@ const Profile: React.FC = () => {
       }
 
       for (const id of selectedIds) {
-        const response = await fetch(`${API_URL}/images/${id}`, {
+        const response = await fetch(`${API_URL}/api/images/${id}`, {
           method: 'DELETE',
           headers
         });

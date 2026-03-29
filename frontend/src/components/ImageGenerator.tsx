@@ -16,6 +16,17 @@ interface SelectedImages {
 }
 
 
+const defaultApiUrl = (() => {
+  if (process.env.REACT_APP_API_URL) {
+    return process.env.REACT_APP_API_URL;
+  }
+  // When using vercel dev, frontend and backend share the same URL space.
+  // Default to /api for all local use cases here.
+  return 'http://localhost:8000';
+})();
+
+const API_URL = defaultApiUrl;
+
 const ImageGenerator: React.FC = () => {
   const { isAuth, email } = useAuth();
   const [aspectRatio, setAspectRatio] = useState('1:1');
@@ -47,8 +58,6 @@ const ImageGenerator: React.FC = () => {
       reader.readAsDataURL(file);
     }
   }, []);
-
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
   const handleRemoveReferenceImage = useCallback(() => {
     setReferenceImage(null);
@@ -92,7 +101,7 @@ const ImageGenerator: React.FC = () => {
         headers['X-User-Email'] = email;
       }
 
-      const response = await fetch(`${API_URL}/images/batch-download`, {
+      const response = await fetch(`${API_URL}/api/images/batch-download`, {
         method: 'POST',
         headers,
         body: JSON.stringify(selectedIds)
@@ -134,7 +143,7 @@ const ImageGenerator: React.FC = () => {
       }
 
       for (const id of selectedIds) {
-        const response = await fetch(`${API_URL}/images/${id}`, {
+        const response = await fetch(`${API_URL}/api/images/${id}`, {
           method: 'DELETE',
           headers
         });
@@ -164,7 +173,7 @@ const ImageGenerator: React.FC = () => {
         headers['X-User-Email'] = email;
       }
 
-      const response = await fetch(`${API_URL}/images/${imageToDelete.id}`, {
+      const response = await fetch(`${API_URL}/api/images/${imageToDelete.id}`, {
         method: 'DELETE',
         headers
       });
@@ -190,13 +199,27 @@ const ImageGenerator: React.FC = () => {
       if (isAuth && email) {
         headers['X-User-Email'] = email;
       }
-      const response = await fetch(`${API_URL}/images/details`, { headers });
+      const response = await fetch(`${API_URL}/api/images/details`, { headers });
+      if (!response.ok) {
+        const text = await response.text();
+        console.error('API error fetching images', response.status, text);
+        throw new Error(`API error: ${response.status} ${text}`);
+      }
+
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('Unexpected content type', contentType, text);
+        throw new Error(`Unexpected response content type: ${contentType}`);
+      }
+
       const data = await response.json();
       if (data.images) {
         setPreviousImages(data.images);
       }
     } catch (err) {
       console.error('Error fetching images:', err);
+      setError('Failed to fetch images from API. See console for details.');
     } finally {
       setLoadingState(prev => ({ ...prev, isFetching: false }));
     }
@@ -230,7 +253,7 @@ const ImageGenerator: React.FC = () => {
     setError(null);
 
     try {
-      const response = await fetch(`${API_URL}/generate-image`, {
+      const response = await fetch(`${API_URL}/api/generate-image`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -247,7 +270,9 @@ const ImageGenerator: React.FC = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate image');
+        const text = await response.text();
+        console.error('Generate-image API error', response.status, text);
+        throw new Error(`Failed to generate image: ${response.status} ${text}`);
       }
 
       const data = await response.json();
@@ -284,7 +309,7 @@ const ImageGenerator: React.FC = () => {
     setError(null);
 
     try {
-      const response = await fetch(`${API_URL}/magic-prompt`, {
+      const response = await fetch(`${API_URL}/api/magic-prompt`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

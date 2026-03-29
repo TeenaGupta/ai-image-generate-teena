@@ -34,7 +34,6 @@ An advanced AI-powered text-to-image generation application that supports multip
 - Node.js and npm
 - Python 3.8+
 - MySQL database
-- Replicate API key
 - Hugging Face API key
 - Cloudinary account
 
@@ -48,7 +47,6 @@ An advanced AI-powered text-to-image generation application that supports multip
 
 2. Create a `.env` file in the backend directory with the following variables:
    ```
-   REPLICATE_API_TOKEN=your_replicate_api_token
    HUGGING_FACE_API_KEY=your_hugging_face_api_key
    CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
    CLOUDINARY_API_KEY=your_cloudinary_api_key

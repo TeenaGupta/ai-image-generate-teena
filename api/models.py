@@ -18,22 +18,25 @@ load_dotenv()
 logger = logging.getLogger(__name__)
 
 hugging_face_api_key = os.getenv("HUGGING_FACE_API_KEY")
-client = InferenceClient(token=hugging_face_api_key)
+if not hugging_face_api_key:
+    logger.warning("HUGGING_FACE_API_KEY is not configured. Image generation will fail.")
+    client = None
+else:
+    client = InferenceClient(token=hugging_face_api_key)
 
 # Configure Cloudinary
-cloudinary.config(
-    cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME'),
-    api_key=os.getenv('CLOUDINARY_API_KEY'),
-    api_secret=os.getenv('CLOUDINARY_API_SECRET')
-)
+cloudinary_cloud_name = os.getenv('CLOUDINARY_CLOUD_NAME')
+cloudinary_api_key = os.getenv('CLOUDINARY_API_KEY')
+cloudinary_api_secret = os.getenv('CLOUDINARY_API_SECRET')
 
-# Set Replicate API token
-replicate_api_token = os.getenv('REPLICATE_API_TOKEN')
-if not replicate_api_token:
-    logger.warning("REPLICATE_API_TOKEN not set")
-else:
-    logger.info(f"REPLICATE_API_TOKEN is set. First 4 characters: {replicate_api_token[:4]}")
-    os.environ["REPLICATE_API_TOKEN"] = replicate_api_token
+if not (cloudinary_cloud_name and cloudinary_api_key and cloudinary_api_secret):
+    logger.warning("Cloudinary credentials are not fully configured. Image upload will fail.")
+
+cloudinary.config(
+    cloud_name=cloudinary_cloud_name,
+    api_key=cloudinary_api_key,
+    api_secret=cloudinary_api_secret
+)
 
 class ModelConfig:
     """Base class for model configurations"""
@@ -54,10 +57,8 @@ class StableDiffusionModel(ModelConfig):
             "prompt": prompt,
             "width": width,
             "height": height,
-            "num_outputs": 1,
             "num_inference_steps": 50,
             "guidance_scale": 7.5,
-            "scheduler": "K_EULER"
         }
 
     def _get_dimensions(self, aspect_ratio: str) -> tuple[int, int]:
@@ -126,19 +127,30 @@ class ImageGenerator:
                 temp_image = BytesIO(image_data)
                 params["reference_image"] = temp_image
 
-            # Generate image with Replicate
+            # Ensure the Hugging Face client is configured
+            if client is None:
+                raise HTTPException(status_code=500, detail="Missing Hugging Face API key")
+
+            # Generate image with Hugging Face API
             try:
                 logger.info(f"Starting image generation with model {model_type} ({model.model_id})")
                 logger.info(f"Model parameters: {params}")
-                
+
                 image = client.text_to_image(
-                    prompt,
-                    model=model.model_id
+                    model=model.model_id,
+                    **params
                 )
 
-                image_bytes = BytesIO()
-                image.save(image_bytes, format="PNG")
-                image_bytes.seek(0)
+                # `client.text_to_image` may return a PIL Image or bytes
+                if hasattr(image, 'save'):
+                    image_bytes = BytesIO()
+                    image.save(image_bytes, format="PNG")
+                    image_bytes.seek(0)
+                elif isinstance(image, (bytes, bytearray)):
+                    image_bytes = BytesIO(image)
+                    image_bytes.seek(0)
+                else:
+                    raise ValueError("Unsupported image response type from Hugging Face")
 
             except Exception as e:
                 logger.error(f"HuggingFace API error for {model_type}: {str(e)}")
